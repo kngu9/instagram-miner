@@ -30,7 +30,7 @@ def analyzeInstagram(model, username):
   i = 0
 
   while curProfile.nextMedia():
-    if i > 10:
+    if i > 5:
       break
     for m in curProfile.getMedia():
       if m['__typename'] == 'GraphImage':
@@ -45,9 +45,15 @@ def analyzeInstagram(model, username):
         for p in preds:
           for tag in p:
             if tag[1] not in tagFrequency:
-              tagFrequency[tag[1]] = 0
-            tagFrequency[tag[1]] += 1
+              tagFrequency[tag[1]] = {'count': 0, 'confidenceSum': 0}
+            tagFrequency[tag[1]]['count'] += 1
+            tagFrequency[tag[1]]['confidenceSum'] += tag[2]
     i += 1
+  arr = []
 
-  return tagFrequency
+  for t in tagFrequency:
+    curObj = tagFrequency[t]
+    arr.append({'tag': t, 'weight': curObj['count']/(curObj['confidenceSum']/curObj['count'])})
+
+  return sorted(arr, key=lambda k: k['weight'], reverse=True)[:10]
   
