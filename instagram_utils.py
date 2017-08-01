@@ -27,8 +27,11 @@ def analyzeInstagram(model, username):
   curProfile = Profile(username)
 
   tagFrequency = {}
+  i = 0
 
   while curProfile.nextMedia():
+    if i > 10:
+      break
     for m in curProfile.getMedia():
       if m['__typename'] == 'GraphImage':
         urllib.request.urlretrieve(m['display_src'], 'predict.jpg')
@@ -44,7 +47,7 @@ def analyzeInstagram(model, username):
             if tag[1] not in tagFrequency:
               tagFrequency[tag[1]] = 0
             tagFrequency[tag[1]] += 1
-    print(tagFrequency)
+    i += 1
 
   return tagFrequency
   
