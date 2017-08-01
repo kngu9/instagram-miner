@@ -3,17 +3,18 @@ import json
 import numpy as np
 from keras.preprocessing import image
 from imagenet_utils import preprocess_input, decode_predictions
+import requests
 
 class Profile(object):
   def __init__(self, username):
     self.username = username
-    self.user = json.loads(urllib.request.urlopen('https://www.instagram.com/' + username + '/?__a=1').read())['user']
+    self.user = json.loads(requests.get('https://www.instagram.com/' + username + '/?__a=1').text)['user']
     self.mediaIndex = None
     self.media = self.user['media']
 
   def nextMedia(self):
     if self.mediaIndex:
-      self.media = json.loads(urllib.request.urlopen('https://www.instagram.com/' + self.username + '/?__a=1&max_id=' + self.mediaIndex).read())['user']['media']
+      self.media = json.loads(requests.get('https://www.instagram.com/' + self.username + '/?__a=1&max_id=' + self.mediaIndex).text)['user']['media']
 
     self.mediaIndex = self.media['page_info']['end_cursor']
 
@@ -26,11 +27,8 @@ def analyzeInstagram(model, username):
   curProfile = Profile(username)
 
   tagFrequency = {}
-  i = 0
 
   while curProfile.nextMedia():
-    if i > 5:
-      break
     for m in curProfile.getMedia():
       if m['__typename'] == 'GraphImage':
         urllib.request.urlretrieve(m['display_src'], 'predict.jpg')
@@ -46,8 +44,7 @@ def analyzeInstagram(model, username):
             if tag[1] not in tagFrequency:
               tagFrequency[tag[1]] = 0
             tagFrequency[tag[1]] += 1
-        
-    i += 1
+    print(tagFrequency)
 
   return tagFrequency
   
