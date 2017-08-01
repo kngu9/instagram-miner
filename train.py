@@ -29,6 +29,6 @@ def buildModel():
 
   start = time.time()
   model.compile(loss='categorical_crossentropy', optimizer='adam')
-  print ('Compilation Time : ' + time.time() - start)
+  print ('Compilation Time : ' + str(time.time() - start))
 
   return model
